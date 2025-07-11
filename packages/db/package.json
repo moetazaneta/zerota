@@ -5,7 +5,8 @@
     "dev": "convex dev"
   },
   "dependencies": {
-    "convex": "^1.23.0"
+    "convex": "^1.23.0",
+    "@zerota/providers": "workspace:*"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",

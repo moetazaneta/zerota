@@ -1,0 +1,12 @@
+{
+  "name": "@zerota/providers",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "types": "index.ts",
+  "license": "MIT",
+  "dependencies": {
+    "zod": "^3.25.74",
+    "db": "workspace:*",
+    "@zerota/utils": "workspace:*"
+  }
+}

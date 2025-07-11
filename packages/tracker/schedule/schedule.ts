@@ -1,0 +1,23 @@
+import type { Doc } from "db/convex/_generated/dataModel"
+import { Context, Queue, Effect, Fiber } from "effect"
+import { enqueueSubscribedUsers } from "./enqueue"
+import { processSubscribedUsers } from "./process"
+
+export class AnilistQueue extends Context.Tag("AnilistQueue")<
+  AnilistQueue,
+  Queue.Queue<Doc<'subscribedUsers'>['providerUserId']>
+>() {}
+
+const anilistQueue = Queue.bounded<Doc<'subscribedUsers'>['providerUserId']>(100)
+
+const program = Effect.gen(function* () {
+  const enqueue = yield* Effect.fork(enqueueSubscribedUsers)
+  const process = yield* Effect.fork(processSubscribedUsers)
+
+  yield* Fiber.join(enqueue)
+  yield* Fiber.join(process)
+})
+
+Effect.runPromise(program.pipe(
+  Effect.provideServiceEffect(AnilistQueue, anilistQueue)
+))

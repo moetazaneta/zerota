@@ -20,5 +20,8 @@
       "sharp",
       "unrs-resolver"
     ]
+  },
+  "devDependencies": {
+    "@clerk/types": "^4.63.0"
   }
 }

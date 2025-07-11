@@ -1,14 +1,56 @@
-import { ConvexClient } from "convex/browser";
-import { api } from "db/convex/_generated/api";
+// What I need to do:
+// 1. get user
+// 2. get user active providers
+// 3. fetch provider data one by one
+//
+// I guess I need queue for each provider,
+// so we don't meet timeout
 
-console.log(process.env["CONVEX_URL"])
+import { Console, Context, Data, Effect, Either, Option } from "effect";
+import type { ProviderUser } from "./providers/types/user";
+import { getAnilistUser } from "./providers/abstract/getUser";
 
-const client = new ConvexClient(process.env["CONVEX_URL"]!);
 
-const unsubscribe = client.onUpdate(api.myFunctions.listNumbers, { count: 10 }, async ({ viewer, numbers }) => {
-  console.log(numbers);
-});
+class AnilistProvider extends Context.Tag("AnilistProvider")<
+  AnilistProvider,
+  { readonly user: (name: string) => Effect.Effect<ProviderUser, FetchError | UserNotFoundError> }
+>() {}
 
-// await Bun.sleep(1000);
-// unsubscribe();
-// await client.close();
+class UserNotFoundError extends Data.TaggedError("UserNotFoundError")<{ name: string }> {}
+class FetchError extends Data.TaggedError("FetchError")<{ reason: unknown }> {}
+
+const getUser = (name: string) => Effect.gen(function* () {
+  const user = yield* Effect.either(
+    Effect.tryPromise(() => getAnilistUser(name))
+  )
+
+  if (Either.isLeft(user)) {
+    return yield* new FetchError({ reason: user.left });
+  }
+
+  if (!user.right) {
+    return yield* new UserNotFoundError({ name });
+  }
+
+  return user.right;
+})
+
+
+const program = Effect.gen(function* () {
+  const anilistProvider = yield* AnilistProvider;
+  const user = yield* anilistProvider.user("temu");
+  return user;
+}).pipe(
+  Effect.provideService(AnilistProvider, {
+    user: getUser,
+  }),
+  Effect.catchTag("FetchError", (e) =>
+    Console.error(e)
+  ),
+  Effect.catchTag("UserNotFoundError", (e) =>
+    Console.error(`User ${e.name} not found`)
+  ),
+  Effect.tap(u => Console.log(u)),
+)
+
+Effect.runFork(program);
