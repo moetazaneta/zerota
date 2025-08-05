@@ -44,6 +44,7 @@ export async function getAnilistActivities(
 					posterUrl: a.media.coverImage.large,
 				},
 				providerUserId: String(a.user.id),
+				provider: "anilist" as const,
 			}) satisfies ActivityWithMedia,
 	)
 }

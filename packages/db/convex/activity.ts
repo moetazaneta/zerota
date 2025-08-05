@@ -1,19 +1,16 @@
-import {User} from "@clerk/backend"
-import {fetchQuery} from "convex/nextjs"
 import {paginationOptsValidator} from "convex/server"
 import {v} from "convex/values"
+import {getAll} from "convex-helpers/server/relationships"
 import {api} from "./_generated/api"
 import type {Doc} from "./_generated/dataModel"
 import {mutation, query} from "./_generated/server"
 import {
 	type Media,
 	mediaFields,
-	providerType,
+	providerName,
 	type StatusActivity,
 	statusActivityFields,
 } from "./schema"
-import {getProviderUserByIdFunc} from "./userProviders"
-import {getUserByExternalId} from "./users"
 
 const {
 	createdAt: _createdAt,
@@ -24,7 +21,7 @@ const {
 
 export const createStatusActivity = mutation({
 	args: {
-		provider: providerType,
+		provider: providerName,
 		media: v.object(createMediaFields),
 		activity: v.object(statusActivityFields),
 		providerUserId: v.string(),
@@ -90,6 +87,7 @@ export const createStatusActivity = mutation({
 			userId,
 			providerUserId,
 			media: mediaId,
+			provider: providerId,
 			kind: "status",
 			status: activity.status,
 			progress: activity.progress,
@@ -101,10 +99,14 @@ export const createStatusActivity = mutation({
 	},
 })
 
-export type PublicActivity = Omit<StatusActivity, "media" | "author"> & {
+export type PublicActivity = Omit<
+	StatusActivity,
+	"media" | "author" | "provider"
+> & {
 	media: Media
 	author: Doc<"users">
 	providerAuthor: Doc<"userProviders">
+	provider: Doc<"providers">
 }
 
 export const publicList = query({
@@ -112,38 +114,90 @@ export const publicList = query({
 		paginationOpts: paginationOptsValidator,
 	},
 	handler: async (ctx, args) => {
+		console.log("publicList")
 		const {paginationOpts} = args
-		const activities = await ctx.db
+		const activitiesPage = await ctx.db
 			.query("activities")
 			.withIndex("by_createdAt")
 			.order("desc")
 			.paginate(paginationOpts)
 
-		// TODO: if too slow, maybe i should promise.all the media and author, and then .find in final object?
+		const mediaIds = [
+			...new Set(activitiesPage.page.map(activity => activity.media)),
+		]
+		const userIds = [
+			...new Set(activitiesPage.page.map(activity => activity.userId)),
+		]
+		const providerUserIds = [
+			...new Set(activitiesPage.page.map(activity => activity.providerUserId)),
+		]
+		const providerIds = [
+			...new Set(activitiesPage.page.map(activity => activity.provider)),
+		]
+
+		const mediaList = (await getAll(ctx.db, mediaIds)).filter(v => v != null)
+		const users = (
+			await Promise.all(
+				userIds.map(id =>
+					ctx.db
+						.query("users")
+						.withIndex("byExternalId", q => q.eq("externalId", id))
+						.unique(),
+				),
+			)
+		).filter(v => v != null)
+		console.log("userIds", userIds)
+		console.log("users", users)
+		const providerUsers = (
+			await Promise.all(
+				providerUserIds.map(id =>
+					ctx.db
+						.query("userProviders")
+						.withIndex("byProviderUserId", q => q.eq("providerUserId", id))
+						.collect(),
+				),
+			)
+		)
+			.flat()
+			.filter(v => v != null)
+
+		console.log("providerIds", providerIds)
+		const providers = (await getAll(ctx.db, providerIds)).filter(v => v != null)
+		console.log("providers", providers)
 
 		return {
-			...activities,
-			page: await Promise.all(
-				activities.page.map(
-					async activity =>
-						({
-							// TODO: it's true that it's status activity, but we should check properly
-							...(activity as StatusActivity),
-							// biome-ignore lint/style/noNonNullAssertion: surely media exists
-							media: (await ctx.db.get(activity.media))!,
-							// biome-ignore lint/style/noNonNullAssertion: surely author exists
-							author: (await getUserByExternalId(ctx, activity.userId))!,
-							// providerAuthor: (await fetchQuery(
-							// 	api.userProviders.getProviderUserById,
-							// ))!,
-							// biome-ignore lint/style/noNonNullAssertion: surely provider user exists
-							providerAuthor: (await getProviderUserByIdFunc(
-								ctx,
-								activity.providerUserId,
-							))!,
-						}) satisfies PublicActivity,
-				),
-			),
+			...activitiesPage,
+			page: (
+				await Promise.all(
+					activitiesPage.page.map(async activity => {
+						if (activity.kind !== "status") {
+							console.log("activity", activity)
+							return null
+						}
+
+						const media = mediaList.find(m => m._id === activity.media)
+						const user = users.find(u => u.externalId === activity.userId)
+						const provider = providers.find(p => p._id === activity.provider)
+						const providerUser = providerUsers.find(
+							p =>
+								p.providerUserId === activity.providerUserId &&
+								p.provider === provider?._id,
+						)
+						if (!media || !user || !providerUser || !provider) {
+							console.log("media", media, user, providerUser, provider)
+							return null
+						}
+
+						return {
+							...activity,
+							media,
+							author: user,
+							providerAuthor: providerUser,
+							provider: provider,
+						} satisfies PublicActivity
+					}),
+				)
+			).filter(v => v != null),
 		}
 	},
 })

@@ -1,8 +1,9 @@
 import {getAnilistUser} from "@zerota/providers"
 import {v} from "convex/values"
-import {api, internal} from "./_generated/api"
+import {api} from "./_generated/api"
 import type {Doc} from "./_generated/dataModel"
 import {action, mutation, query} from "./_generated/server"
+import type {ProviderName} from "./schema"
 
 export const listProviders = query({
 	args: {},
@@ -10,10 +11,10 @@ export const listProviders = query({
 		const providers = await ctx.db.query("providers").collect()
 		const map = providers.reduce(
 			(acc, provider) => {
-				acc[provider.id] = provider._id
+				acc[provider.name] = provider._id
 				return acc
 			},
-			{} as Record<Doc<"providers">["id"], Doc<"providers">["_id"]>,
+			{} as Record<ProviderName, Doc<"providers">["_id"]>,
 		)
 		return map
 	},

@@ -22,6 +22,7 @@ const subscribedUsers = Effect.gen(function* () {
 	const providerMap = yield* Effect.tryPromise(() =>
 		http.query(api.providers.listProviders),
 	)
+	console.log("providerMap", providerMap)
 	const subscribers = yield* Effect.tryPromise(() =>
 		http.query(api.subscribers.listSubscribers, {
 			provider: providerMap.anilist,

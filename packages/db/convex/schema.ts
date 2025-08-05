@@ -6,11 +6,14 @@ const baseActivity = {
 	userId: v.string(),
 	providerUserId: v.string(),
 	media: v.id("media"),
+	provider: v.id("providers"),
 	createdAt: v.number(),
 	updatedAt: v.number(),
 }
 
-export const providerType = v.union(v.literal("anilist"))
+export const providerName = v.union(v.literal("anilist"))
+
+export type ProviderName = Doc<"providers">["name"]
 
 export const mediaFields = {
 	provider: v.id("providers"),
@@ -78,7 +81,7 @@ export default defineSchema({
 		providerUserId: v.string(),
 		createdAt: v.number(),
 		updatedAt: v.number(),
-	}),
+	}).index("byProviderUserId", ["providerUserId"]),
 	activities: defineTable(
 		v.union(
 			v.object({
@@ -124,8 +127,8 @@ export default defineSchema({
 	}),
 	media: defineTable(mediaFields),
 	providers: defineTable({
-		id: providerType,
-		name: v.string(),
+		name: providerName,
 		url: v.string(),
+		logoUrl: v.string(),
 	}),
 })

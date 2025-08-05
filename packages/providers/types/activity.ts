@@ -1,6 +1,5 @@
 import type {Doc} from "@zerota/db/convex/_generated/dataModel"
-
-export type ProviderId = Doc<"providers">["id"]
+import type {ProviderName} from "@zerota/db/convex/schema"
 
 type DistributiveOmit<T, K extends PropertyKey> = T extends any
 	? Omit<T, K>
@@ -8,16 +7,13 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends any
 
 export type ActivityWithMedia = DistributiveOmit<
 	Doc<"activities">,
-	| "_id"
-	| "_creationTime"
-	| "userId"
-	| "updatedAt"
-	| "media"
+	"_id" | "_creationTime" | "userId" | "updatedAt" | "media" | "provider"
 > & {
 	media: DistributiveOmit<
 		Doc<"media">,
 		"_id" | "_creationTime" | "createdAt" | "updatedAt" | "provider"
 	> & {
-		provider: ProviderId
+		provider: ProviderName
 	}
+	provider: ProviderName
 }

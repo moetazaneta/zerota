@@ -5,9 +5,9 @@
 		"dev": "convex dev"
 	},
 	"dependencies": {
-		"@zerota/db-schema": "workspace:*",
 		"@zerota/providers": "workspace:*",
 		"convex": "^1.23.0",
+		"convex-helpers": "^0.1.101",
 		"svix": "^1.69.0"
 	},
 	"devDependencies": {

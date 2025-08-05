@@ -77,15 +77,13 @@ export function Activity({
 						<Image
 							src={activity.providerAuthor.avatarUrl}
 							alt={activity.providerAuthor.name}
-							width={24}
-							height={24}
+							width={100}
+							height={100}
 							className="w-[24px] h-[24px] rounded-[8px] object-cover"
 						/>
 					)}
 				</motion.div>
-				<div className="link">
-					{activity.providerAuthor.name}
-				</div>
+				<div className="link">{activity.providerAuthor.name}</div>
 			</motion.div>
 			<div>
 				{/* {activity.media.type} */}
@@ -118,10 +116,31 @@ export function Activity({
 					href={activity.media.url}
 					className="flex items-center gap-2 cursor-pointer whitespace-normal"
 				>
-					<div className="link">
-						{activity.media.title}
-					</div>
+					<div className="link">{activity.media.title}</div>
 				</Link>
+			</motion.div>
+
+			<div>at</div>
+
+			<motion.div
+				className="flex items-center gap-1.5 cursor-pointer flex-shrink-0 justify-center"
+				whileHover="hover"
+			>
+				<motion.div
+					variants={{hover: {scale: 1.3, rotateZ: -5}}}
+					className="flex-shrink-0 flex items-center justify-center"
+				>
+					{activity.provider.logoUrl && (
+						<Image
+							src={activity.provider.logoUrl}
+							alt={activity.provider.name}
+							width={100}
+							height={100}
+							className="w-[24px] h-[24px] my-1 rounded-[8px] object-cover"
+						/>
+					)}
+				</motion.div>
+				{/* <div className="link">{activity.provider.name}</div> */}
 			</motion.div>
 		</div>
 	)
