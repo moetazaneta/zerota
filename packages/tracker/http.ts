@@ -1,3 +1,7 @@
-import { ConvexHttpClient } from "convex/browser";
+import {ConvexHttpClient} from "convex/browser"
 
-export const http = new ConvexHttpClient(process.env.CONVEX_URL);
+if (!process.env.CONVEX_URL) {
+	throw new Error("Missing CONVEX_URL in your .env file")
+}
+
+export const http = new ConvexHttpClient(process.env.CONVEX_URL)

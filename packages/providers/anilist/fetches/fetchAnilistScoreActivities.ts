@@ -1,6 +1,6 @@
-import * as z from 'zod/v4';
-import { fetchPage } from "../helpers/fetchPage.js"
-import { getUserIds } from "../helpers/getUserIds.js"
+import * as z from "zod/v4"
+import {fetchPage} from "../helpers/fetchPage.js"
+import {getUserIds} from "../helpers/getUserIds.js"
 
 const scoreActivitiesPageQuery = `
 query ($userIds: [Int], $page: Int) {
@@ -38,59 +38,61 @@ query ($userIds: [Int], $page: Int) {
 `
 
 const anilistScoreActivitySchema = z.object({
-  media: z.object({
-    id: z.number(),
-    type: z.string(),
-    title: z.object({
-      romaji: z.string(),
-    }),
-    coverImage: z.object({
-      large: z.string(),
-    }),
-  }),
-  updatedAt: z.number(),
-  score: z.number().nullable(),
-  user: z.object({
-    id: z.number(),
-  }),
+	media: z.object({
+		id: z.number(),
+		type: z.string(),
+		title: z.object({
+			romaji: z.string(),
+		}),
+		coverImage: z.object({
+			large: z.string(),
+		}),
+	}),
+	updatedAt: z.number(),
+	score: z.number().nullable(),
+	user: z.object({
+		id: z.number(),
+	}),
 })
 
 const anilistScoreActivitiesPageBodySchema = z.object({
-  mediaList: z.array(anilistScoreActivitySchema),
+	mediaList: z.array(anilistScoreActivitySchema),
 })
 
 const anilistScoreActivitiesPageSchema = z.object({
-  data: z.object({
-    Page: z
-      .object({
-        pageInfo: z.object({
-          total: z.number(),
-          perPage: z.number(),
-          currentPage: z.number(),
-          lastPage: z.number(),
-          hasNextPage: z.boolean(),
-        }),
-      })
-      .and(anilistScoreActivitiesPageBodySchema),
-  }),
+	data: z.object({
+		Page: z
+			.object({
+				pageInfo: z.object({
+					total: z.number(),
+					perPage: z.number(),
+					currentPage: z.number(),
+					lastPage: z.number(),
+					hasNextPage: z.boolean(),
+				}),
+			})
+			.and(anilistScoreActivitiesPageBodySchema),
+	}),
 })
 
 export type AnilistScoreActivity = z.infer<typeof anilistScoreActivitySchema>
 
-export async function fetchAnilistScoreActivities(users: User[]): Promise<AnilistScoreActivity[]> {
-  const userIds = getUserIds(users)
+export async function fetchAnilistScoreActivities(
+	users: User[],
+): Promise<AnilistScoreActivity[]> {
+	const userIds = getUserIds(users)
 
-  const variables = {
-    userIds,
-    page: 1,
-  }
+	const variables = {
+		userIds,
+		page: 1,
+	}
 
-  const page = await fetchPage(
-    scoreActivitiesPageQuery,
-    variables,
-    anilistScoreActivitiesPageBodySchema,
-    "regular activity",
-  )
+	const page = await fetchPage(
+		scoreActivitiesPageQuery,
+		variables,
+		anilistScoreActivitiesPageBodySchema,
+		"regular activity",
+	)
 
-  return page?.mediaList ?? []
+	return page?.mediaList ?? []
 }

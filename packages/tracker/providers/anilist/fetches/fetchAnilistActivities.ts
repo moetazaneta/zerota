@@ -1,6 +1,6 @@
-import type { User } from "@/entities/user/user.js"
-import { z } from "zod"
-import { fetchPage } from "../helpers/fetchPage.js"
+import type {User} from "@/entities/user/user.js"
+import {z} from "zod"
+import {fetchPage} from "../helpers/fetchPage.js"
 
 const activityQuery = `
 {
@@ -61,56 +61,66 @@ query ($userIds: [Int], $createdAfter: Int, $type: ActivityType, $page: Int) {
 `
 
 const anilistActivitySchema = z.object({
-  id: z.number(),
-  type: z.string(),
-  replyCount: z.number(),
-  status: z.string(),
-  progress: z.string().nullable(),
-  isLocked: z.boolean(),
-  isSubscribed: z.boolean(),
-  isLiked: z.boolean(),
-  isPinned: z.boolean(),
-  likeCount: z.number(),
-  createdAt: z.number(),
-  user: z.object({
-    id: z.number(),
-    name: z.string(),
-    avatar: z.object({
-      large: z.string(),
-    }),
-  }),
-  media: z.object({
-    id: z.number(),
-    type: z.string(),
-    status: z.string(),
-    isAdult: z.boolean(),
-    title: z.object({
-      romaji: z.string(),
-      english: z.string().nullable(),
-    }),
-    coverImage: z.object({
-      large: z.string(),
-    }),
-  }),
+	id: z.number(),
+	type: z.string(),
+	replyCount: z.number(),
+	status: z.string(),
+	progress: z.string().nullable(),
+	isLocked: z.boolean(),
+	isSubscribed: z.boolean(),
+	isLiked: z.boolean(),
+	isPinned: z.boolean(),
+	likeCount: z.number(),
+	createdAt: z.number(),
+	user: z.object({
+		id: z.number(),
+		name: z.string(),
+		avatar: z.object({
+			large: z.string(),
+		}),
+	}),
+	media: z.object({
+		id: z.number(),
+		type: z.string(),
+		status: z.string(),
+		isAdult: z.boolean(),
+		title: z.object({
+			romaji: z.string(),
+			english: z.string().nullable(),
+		}),
+		coverImage: z.object({
+			large: z.string(),
+		}),
+	}),
 })
 
 const anilistActivitiesPageBodySchema = z.object({
-  activities: z.array(anilistActivitySchema),
+	activities: z.array(anilistActivitySchema),
 })
 
 export type AnilistActivity = z.infer<typeof anilistActivitySchema>
 
-export async function fetchAnilistActivities(users: User[], createdAfter: Date): Promise<AnilistActivity[]> {
-  const userIds = users.flatMap(u => u.providers.filter(p => p.provider === "anilist").map(p => Number(p.id)))
-  const createdAfterInSeconds = Math.floor(createdAfter.getTime() / 1000)
+export async function fetchAnilistActivities(
+	users: User[],
+	createdAfter: Date,
+): Promise<AnilistActivity[]> {
+	const userIds = users.flatMap(u =>
+		u.providers.filter(p => p.provider === "anilist").map(p => Number(p.id)),
+	)
+	const createdAfterInSeconds = Math.floor(createdAfter.getTime() / 1000)
 
-  const variables = {
-    userIds,
-    page: 1,
-    createdAfter: createdAfterInSeconds,
-  }
+	const variables = {
+		userIds,
+		page: 1,
+		createdAfter: createdAfterInSeconds,
+	}
 
-  const page = await fetchPage(pageQuery, variables, anilistActivitiesPageBodySchema, "regular activity")
+	const page = await fetchPage(
+		pageQuery,
+		variables,
+		anilistActivitiesPageBodySchema,
+		"regular activity",
+	)
 
-  return page?.activities ?? []
+	return page?.activities ?? []
 }

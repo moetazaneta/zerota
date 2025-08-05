@@ -1,32 +1,35 @@
 {
-  "name": "frontend",
-  "version": "0.1.0",
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  },
-  "dependencies": {
-    "@clerk/clerk-react": "^5.25.0",
-    "@clerk/nextjs": "^6.12.6",
-    "convex": "^1.23.0",
-    "next": "15.2.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "db": "workspace:*"
-  },
-  "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "15.2.3",
-    "npm-run-all": "^4.1.5",
-    "prettier": "^3.5.3",
-    "tailwindcss": "^4",
-    "typescript": "^5"
-  }
+	"name": "@zerota/frontend",
+	"version": "0.1.0",
+	"scripts": {
+		"dev": "next dev",
+		"build": "next build",
+		"start": "next start",
+		"lint": "next lint"
+	},
+	"dependencies": {
+		"@clerk/clerk-react": "^5.25.0",
+		"@clerk/nextjs": "^6.12.6",
+		"@uidotdev/usehooks": "^2.4.1",
+		"@zerota/db": "workspace:*",
+		"convex": "^1.23.0",
+		"motion": "^12.23.11",
+		"next": "15.2.3",
+		"react": "^19.0.0",
+		"react-dom": "^19.0.0"
+	},
+	"devDependencies": {
+		"oxlint": "^1.9.0",
+		"@eslint/eslintrc": "^3",
+		"@tailwindcss/postcss": "^4",
+		"@types/node": "^20",
+		"@types/react": "^19",
+		"@types/react-dom": "^19",
+		"eslint": "^9",
+		"eslint-config-next": "15.2.3",
+		"npm-run-all": "^4.1.5",
+		"prettier": "^3.5.3",
+		"tailwindcss": "^4",
+		"typescript": "^5"
+	}
 }

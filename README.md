@@ -10,6 +10,15 @@ I know that it's not optimal, I could substitute tech stack in the future. Just 
 
 TODO: Write a proper readme for each package.
 
+db exists to persist data.
+providers exist to provide API for getting data.
+tracker uses providers to write data to db.
+fe shows data from db.
+
+lgtm.
+
+what about importing data mechanic? let's say I started to use app now, but I want stats for previous month, should I add mechanism to do it? can I add mechanism to do it? do I need to think about it now? heh no.
+
 ### DB
 
 I heard a lot of good feedback about Convex, so I want to try it.

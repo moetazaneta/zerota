@@ -6,51 +6,54 @@
 // I guess I need queue for each provider,
 // so we don't meet timeout
 
-import { Console, Context, Data, Effect, Either, Option } from "effect";
-import type { ProviderUser } from "./providers/types/user";
-import { getAnilistUser } from "./providers/abstract/getUser";
-
+import {Console, Context, Data, Effect, Either, Option} from "effect"
+import {getAnilistUser} from "./providers/abstract/getUser"
+import type {ProviderUser} from "./providers/types/user"
 
 class AnilistProvider extends Context.Tag("AnilistProvider")<
-  AnilistProvider,
-  { readonly user: (name: string) => Effect.Effect<ProviderUser, FetchError | UserNotFoundError> }
+	AnilistProvider,
+	{
+		readonly user: (
+			name: string,
+		) => Effect.Effect<ProviderUser, FetchError | UserNotFoundError>
+	}
 >() {}
 
-class UserNotFoundError extends Data.TaggedError("UserNotFoundError")<{ name: string }> {}
-class FetchError extends Data.TaggedError("FetchError")<{ reason: unknown }> {}
+class UserNotFoundError extends Data.TaggedError("UserNotFoundError")<{
+	name: string
+}> {}
+class FetchError extends Data.TaggedError("FetchError")<{reason: unknown}> {}
 
-const getUser = (name: string) => Effect.gen(function* () {
-  const user = yield* Effect.either(
-    Effect.tryPromise(() => getAnilistUser(name))
-  )
+const getUser = (name: string) =>
+	Effect.gen(function* () {
+		const user = yield* Effect.either(
+			Effect.tryPromise(() => getAnilistUser(name)),
+		)
 
-  if (Either.isLeft(user)) {
-    return yield* new FetchError({ reason: user.left });
-  }
+		if (Either.isLeft(user)) {
+			return yield* new FetchError({reason: user.left})
+		}
 
-  if (!user.right) {
-    return yield* new UserNotFoundError({ name });
-  }
+		if (!user.right) {
+			return yield* new UserNotFoundError({name})
+		}
 
-  return user.right;
-})
-
+		return user.right
+	})
 
 const program = Effect.gen(function* () {
-  const anilistProvider = yield* AnilistProvider;
-  const user = yield* anilistProvider.user("temu");
-  return user;
+	const anilistProvider = yield* AnilistProvider
+	const user = yield* anilistProvider.user("NyashkaNot")
+	return user
 }).pipe(
-  Effect.provideService(AnilistProvider, {
-    user: getUser,
-  }),
-  Effect.catchTag("FetchError", (e) =>
-    Console.error(e)
-  ),
-  Effect.catchTag("UserNotFoundError", (e) =>
-    Console.error(`User ${e.name} not found`)
-  ),
-  Effect.tap(u => Console.log(u)),
+	Effect.provideService(AnilistProvider, {
+		user: getUser,
+	}),
+	Effect.catchTag("FetchError", e => Console.error(e)),
+	Effect.catchTag("UserNotFoundError", e =>
+		Console.error(`User ${e.name} not found`),
+	),
+	Effect.tap(u => Console.log(u)),
 )
 
-Effect.runFork(program);
+Effect.runFork(program)

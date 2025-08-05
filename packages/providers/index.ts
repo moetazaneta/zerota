@@ -1,1 +1,1 @@
-export { getAnilistUser } from "./anilist";
+export {getAnilistUser} from "./anilist"

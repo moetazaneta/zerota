@@ -1,18 +1,21 @@
 {
-  "name": "db",
-  "version": "1.0.0",
-  "scripts": {
-    "dev": "convex dev"
-  },
-  "dependencies": {
-    "convex": "^1.23.0",
-    "@zerota/providers": "workspace:*"
-  },
-  "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@types/node": "^20",
-    "eslint": "^9",
-    "prettier": "^3.5.3",
-    "typescript": "^5"
-  }
+	"name": "@zerota/db",
+	"version": "1.0.0",
+	"scripts": {
+		"dev": "convex dev"
+	},
+	"dependencies": {
+		"@zerota/db-schema": "workspace:*",
+		"@zerota/providers": "workspace:*",
+		"convex": "^1.23.0",
+		"svix": "^1.69.0"
+	},
+	"devDependencies": {
+		"@clerk/backend": "^2.6.0",
+		"@eslint/eslintrc": "^3",
+		"@types/node": "^20",
+		"eslint": "^9",
+		"prettier": "^3.5.3",
+		"typescript": "^5"
+	}
 }

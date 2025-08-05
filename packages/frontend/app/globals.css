@@ -1,26 +1,64 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+	--bg-1: var(--color-white);
+	--bg-2: var(--color-stone-100);
+	--ui-1: var(--color-stone-300);
+	--ui-2: var(--color-stone-400);
+	--ui-3: var(--color-stone-500);
+	--tx-3: var(--color-stone-600);
+	--tx-2: var(--color-stone-700);
+	--tx-1: var(--color-stone-800);
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+	:root {
+		--bg-1: var(--color-stone-900);
+		--bg-2: var(--color-stone-800);
+		--ui-1: var(--color-stone-700);
+		--ui-2: var(--color-stone-600);
+		--ui-3: var(--color-stone-500);
+		--tx-3: var(--color-stone-400);
+		--tx-2: var(--color-stone-300);
+		--tx-1: var(--color-stone-200);
+	}
+}
+
+@theme inline {
+	--color-bg: var(--bg-1);
+	--color-bg-2: var(--bg-2);
+	--color-ui: var(--ui-1);
+	--color-ui-2: var(--ui-2);
+	--color-ui-3: var(--ui-3);
+	--color-tx-3: var(--tx-3);
+	--color-tx-2: var(--tx-2);
+	--color-tx: var(--tx-1);
+
+	--font-sans: var(--font-martian-grotesk);
+	--font-mono: var(--font-geist-mono);
+
+	--text-sm: 16px;
+	--text-base: 20px;
+	--text-base--line-height: 32px;
+	--text-md: 20px;
+	--text-md--line-height: 32px;
+	--text-lg: 24px;
+	--text-xl: 32px;
+	--text-2xl: 40px;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+	@apply text-base font-sans bg-bg text-tx font-stretch-75%;
+}
+
+@font-face {
+  font-family: Martian Grotesk;
+  font-display: swap;
+  src: url('/fonts/MartianGrotesk-VFVF.woff2') format('woff2');
+  font-weight: 100 1000; /* Th: 100, xLt: 200, Lt: 300, Rg: 400, Md: 500, (no 600), Bd: 700, xBd: 800, Bl: 900, Ult: 1000 */
+  font-stretch: 75% 200%; /* Cn: 75%,  Nr: 87.5%,  Std: 100%,  sWd: 112.5%,  Wd: 125%,  xWd: 150%,  uWd: 200% */
+}
+
+.link {
+	@apply underline underline-offset-6 decoration-2 decoration-ui font-medium;
 }

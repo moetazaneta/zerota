@@ -1,16 +1,13 @@
-import type { Doc } from "db/convex/_generated/dataModel";
-import type { StrictOmit } from "@zerota/utils";
+import type {Doc} from "@zerota/db/convex/_generated/dataModel"
+import type {StrictOmit} from "@zerota/utils/strict-omit"
 
-export type ProviderId = Doc<"providers">["id"];
+export type ProviderId = Doc<"providers">["id"]
+// export type ProviderId = any;
 
+// export type ProviderUser = any
 export type ProviderUser = StrictOmit<
-  Doc<"userProviders">,
-  | "_id"
-  | "_creationTime"
-  | "createdAt"
-  | "updatedAt"
-  | "provider"
-  | "userId"
+	Doc<"userProviders">,
+	"_id" | "_creationTime" | "createdAt" | "updatedAt" | "provider" | "userId"
 > & {
-  provider: ProviderId;
+	provider: ProviderId
 }

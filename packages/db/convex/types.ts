@@ -1,3 +1,3 @@
-import { Doc } from "./_generated/dataModel";
+import {Doc} from "./_generated/dataModel"
 
 export type ProviderType = Doc<"providers">["id"]
