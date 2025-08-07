@@ -2,7 +2,23 @@ import type * as React from "react"
 
 import {cn} from "@/lib/utils"
 
-function Input({className, type, ...props}: React.ComponentProps<"input">) {
+function Input({
+	className,
+	type,
+	disablePrefill = false,
+	...props
+}: React.ComponentProps<"input"> & {disablePrefill?: boolean}) {
+	const disablePrefillAttrs = disablePrefill
+		? {
+				autocomplete: "off",
+				// "data-1p-ignore": "true", // 1Password
+				// "data-lpignore": "true", // LastPass
+				// "data-form-type": "other", // Some managers
+				// "data-robot": "ignore", // Dashlane
+				"data-autofill": "off", // General
+				// autocomplete: "new-password", // General
+			}
+		: {}
 	return (
 		<input
 			type={type}
@@ -13,6 +29,7 @@ function Input({className, type, ...props}: React.ComponentProps<"input">) {
 				"aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
 				className,
 			)}
+			{...disablePrefillAttrs}
 			{...props}
 		/>
 	)

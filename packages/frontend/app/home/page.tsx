@@ -14,7 +14,7 @@ export default function Home() {
 	// TODO: Add error handling
 	const activities = usePaginatedQuery(
 		api.activity.publicList,
-		{  },
+		{},
 		{initialNumItems: 50},
 	)
 
@@ -22,7 +22,7 @@ export default function Home() {
 
 	return (
 		<div
-			className="flex flex-col gap-0 m-8 relative items-start"
+			className="flex flex-col gap-0 relative items-start"
 			onMouseLeave={() => setHoveredTab(null)}
 		>
 			{activities.results.map(activity => (

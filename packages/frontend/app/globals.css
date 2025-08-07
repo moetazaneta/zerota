@@ -6,6 +6,7 @@
 :root {
 	--bg-1: var(--color-white);
 	--bg-2: var(--color-stone-100);
+	--bg-3: var(--color-stone-200);
 	--ui-1: var(--color-stone-300);
 	--ui-2: var(--color-stone-400);
 	--ui-3: var(--color-stone-500);
@@ -51,12 +52,13 @@
 	:root {
 		--bg-1: var(--color-stone-900);
 		--bg-2: var(--color-stone-800);
-		--ui-1: var(--color-stone-700);
-		--ui-2: var(--color-stone-600);
-		--ui-3: var(--color-stone-500);
-		--tx-3: var(--color-stone-400);
-		--tx-2: var(--color-stone-300);
-		--tx-1: var(--color-stone-200);
+		--bg-3: var(--color-stone-700);
+		--ui-1: var(--color-stone-600);
+		--ui-2: var(--color-stone-500);
+		--ui-3: var(--color-stone-400);
+		--tx-3: var(--color-stone-300);
+		--tx-2: var(--color-stone-200);
+		--tx-1: var(--color-stone-100);
 
 		--background: oklch(0.147 0.004 49.25);
 		--foreground: oklch(0.985 0.001 106.423);
@@ -95,6 +97,7 @@
 @theme inline {
 	--color-bg: var(--bg-1);
 	--color-bg-2: var(--bg-2);
+	--color-bg-3: var(--bg-3);
 	--color-ui: var(--ui-1);
 	--color-ui-2: var(--ui-2);
 	--color-ui-3: var(--ui-3);
@@ -111,8 +114,11 @@
 	--text-md: 20px;
 	--text-md--line-height: 32px;
 	--text-lg: 24px;
+	--text-lg--line-height: 32px;
 	--text-xl: 32px;
+	--text-xl--line-height: 40px;
 	--text-2xl: 40px;
+	--text-2xl--line-height: 48px;
 
 	--color-sidebar-ring: var(--sidebar-ring);
 	--color-sidebar-border: var(--sidebar-border);
@@ -145,10 +151,14 @@
 	--color-card: var(--card);
 	--color-foreground: var(--color-tx);
 	--color-background: var(--color-bg);
+
 	--radius-sm: calc(var(--radius) - 4px);
 	--radius-md: calc(var(--radius) - 2px);
 	--radius-lg: var(--radius);
 	--radius-xl: calc(var(--radius) + 4px);
+	--radius-2xl: calc(var(--radius) + 8px);
+	--radius-3xl: calc(var(--radius) + 16px);
+	--radius-dialog: 48px;
 
 	/* --color-sidebar-ring: var(--sidebar-ring);
 	--color-sidebar-border: var(--sidebar-border);

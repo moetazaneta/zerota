@@ -16,6 +16,7 @@
 		"@radix-ui/react-switch": "^1.2.5",
 		"@uidotdev/usehooks": "^2.4.1",
 		"@zerota/db": "workspace:*",
+		"@zerota/utils": "workspace:*",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
 		"convex": "^1.23.0",

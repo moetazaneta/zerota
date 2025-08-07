@@ -1,12 +1,12 @@
 "use client"
 
+import {UserProfile} from "@clerk/clerk-react"
 import {api} from "@zerota/db/convex/_generated/api"
-import {error} from "console"
+import type {ProviderName} from "@zerota/db/convex/schema"
+import {capitalize} from "@zerota/utils/string"
 import {useAction, useQuery} from "convex/react"
 import {AlertCircleIcon} from "lucide-react"
-import {motion} from "motion/react"
 import Image from "next/image"
-import Link from "next/link"
 import {useState} from "react"
 import {IconRow} from "@/app/home/components/icon-row"
 import {Alert, AlertDescription, AlertTitle} from "@/components/ui/alert"
@@ -26,13 +26,57 @@ import {Switch} from "@/components/ui/switch"
 
 export default function Profile() {
 	return (
-		<div className="w-full flex flex-col gap-8 items-center">
-			<UserName />
-			<div className="flex flex-col items-stretch gap-8 w-[300px]">
+		<div className="flex flex-col gap-8">
+			<UserInfo />
+			<div className="flex flex-col items-stretch gap-8">
 				<UserProviders />
 				<AddUserProviders />
 			</div>
 		</div>
+	)
+}
+
+function UserInfo() {
+	const user = useQuery(api.users.me)
+
+	if (!user) {
+		return <div>User loading...</div>
+	}
+
+	return (
+		<div className="flex gap-4">
+			<Image
+				src={user.imageUrl ?? ""}
+				alt={user.name ?? ""}
+				width={200}
+				height={200}
+				className="size-[150px] rounded-[32px] object-cover"
+			/>
+			<div className="flex flex-col items-start">
+				<ClerkProfileButton className="mb-auto" />
+				<h2 className="flex items-center gap-2 whitespace-normal text-xl">
+					{user.name}
+				</h2>
+				<h2 className="flex items-center gap-2 whitespace-normal text-xl text-tx-3">
+					@{user.username}
+				</h2>
+			</div>
+		</div>
+	)
+}
+
+function ClerkProfileButton({className}: {className?: string}) {
+	return (
+		<Dialog>
+			<DialogTrigger asChild>
+				<Button type="button" variant="secondary" className={className}>
+					Edit profile
+				</Button>
+			</DialogTrigger>
+			<DialogContent headless>
+				<UserProfile />
+			</DialogContent>
+		</Dialog>
 	)
 }
 
@@ -78,44 +122,89 @@ function UserProviders() {
 	}
 
 	return (
-		<div className="flex flex-col items-stretch gap-2">
-			{userProviders.map(provider => (
-				<Label key={provider._id}>
-					<IconRow
-						className="w-full items-center"
-						renderImage={
-							<Image
-								src={provider.provider.logoUrl}
-								alt={provider.provider.name}
-								width={50}
-								height={50}
-								className="w-[24px] h-[24px] rounded-[8px] object-cover"
-							/>
-						}
-						renderContent={
-							<div className="flex justify-between w-full items-center">
-								<div>{provider.name}</div>
-								<Switch />
-							</div>
-						}
-					/>
-				</Label>
-			))}
+		<div className="flex flex-col items-stretch gap-4w-full">
+			{/* <h3 className="text-lg px-2">My providers</h3> */}
+			<div className="flex flex-col">
+				{userProviders.map(provider => (
+					<Label key={provider._id} className="p-2">
+						<IconRow
+							className="w-full items-center gap-4"
+							renderImage={
+								<Image
+									src={provider.provider.logoUrl}
+									alt={provider.provider.name}
+									width={50}
+									height={50}
+									className="size-8 rounded-lg object-cover"
+								/>
+							}
+							renderContent={
+								<div className="flex w-full items-center gap-2">
+									<Image
+										src={provider.avatarUrl ?? ""}
+										alt={provider.provider.name}
+										width={50}
+										height={50}
+										className="size-12 rounded-xl object-cover"
+									/>
+									<div className="text-lg">{provider.name}</div>
+									<Switch className="ml-auto" />
+								</div>
+							}
+						/>
+					</Label>
+				))}
+			</div>
 		</div>
 	)
 }
 
 function AddUserProviders() {
 	return (
-		<div className="flex flex-col items-stretch gap-2">
-			<AddAnilistProvider />
+		<div className="flex flex-row items-stretch gap-2">
+			<AddAnilistProviderButton />
+			<AddGoodreadsProviderButton />
 		</div>
 	)
 }
 
-function AddAnilistProvider() {
-	const providers = useQuery(api.providers.listProviders)
+function AddAnilistProviderButton() {
 	const addUserProvider = useAction(api.userProviders.addUserProvider)
+	return (
+		<AddProviderButton
+			providerName="anilist"
+			nameExample="temu"
+			urlExample="https://anilist.co/user/temu"
+			onAdd={addUserProvider}
+		/>
+	)
+}
+
+function AddGoodreadsProviderButton() {
+	const addUserProvider = useAction(api.userProviders.addUserProvider)
+	return (
+		<AddProviderButton
+			providerName="goodreads"
+			nameExample="95432671"
+			urlExample="https://www.goodreads.com/user/show/95432671-artem"
+			onAdd={addUserProvider}
+		/>
+	)
+}
+
+function AddProviderButton({
+	providerName,
+	nameExample,
+	urlExample,
+	onAdd,
+}: {
+	providerName: ProviderName
+	nameExample: string
+	urlExample: string
+	onAdd: (obj: {providerName: ProviderName; nameOrUrl: string}) => void
+}) {
+	const providers = useQuery(api.providers.listProviders)
+	const provider = providers?.[providerName]
 	const [username, setUsername] = useState("")
 	const [adding, setAdding] = useState(false)
 	const [error, setError] = useState<string | null>(null)
@@ -124,14 +213,9 @@ function AddAnilistProvider() {
 	async function handleAdd() {
 		setAdding(true)
 		try {
-			console.log("before success")
-			await addUserProvider({
-				providerName: "anilist",
-				nameOrUrl: username,
-			})
-			console.log("success")
+			onAdd({providerName, nameOrUrl: username})
 		} catch (error) {
-			console.dir(error)
+			console.error(error)
 			setError("Something went wrong.")
 		} finally {
 			setAdding(false)
@@ -139,7 +223,7 @@ function AddAnilistProvider() {
 		}
 	}
 
-	if (!providers) {
+	if (!providers || !provider) {
 		return <div>Loading...</div>
 	}
 
@@ -148,22 +232,26 @@ function AddAnilistProvider() {
 			<DialogTrigger asChild>
 				<Button type="button" variant="secondary" size="lg">
 					<Image
-						src={providers.anilist.logoUrl}
-						alt="Anilist"
-						width={16}
-						height={16}
+						src={provider.logoUrl}
+						alt={provider.name}
+						width={100}
+						height={100}
+						className="size-10 rounded-xl"
 					/>
-					Add Anilist Provider
+					Add {capitalize(providerName)}
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-[455px]">
+			<DialogContent className="sm:max-w-[400px]">
 				<DialogHeader>
-					<DialogTitle>Add Anilist account</DialogTitle>
+					<DialogTitle className="flex items-center gap-2">
+						Add {capitalize(providerName)} account
+					</DialogTitle>
 					<DialogDescription>
-						<span>Your anilist username or link to your profile.</span>
+						<span>Your username or link to your profile.</span>
 						<br />
 						<span>
-							E.g. <b>tem</b> or <b>https://anilist.co/user/tem</b>
+							E.g. <b>{nameExample}</b> or{" "}
+							<b className="break-all">{urlExample}</b>
 						</span>
 					</DialogDescription>
 				</DialogHeader>
@@ -176,8 +264,8 @@ function AddAnilistProvider() {
 				)}
 
 				<Input
-					id="username"
-					placeholder="https://anilist.co/user/tem"
+					name="search"
+					placeholder={urlExample}
 					value={username}
 					onChange={e => {
 						setUsername(e.target.value)

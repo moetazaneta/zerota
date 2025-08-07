@@ -1,3 +1,4 @@
+"use client"
 import {motion} from "motion/react"
 import type {ReactNode} from "react"
 import {cn} from "@/utils/cn"
@@ -13,7 +14,7 @@ export function IconRow({
 }) {
 	return (
 		<motion.div
-			className={cn("flex items-start gap-1.5", className)}
+			className={cn("flex items-center gap-1.5", className)}
 			whileHover="hover"
 		>
 			<motion.div
