@@ -4,6 +4,7 @@ import {api} from "./_generated/api"
 import type {Doc} from "./_generated/dataModel"
 import {action, mutation, query} from "./_generated/server"
 import type {ProviderName} from "./schema"
+import {protectedMutation} from "./utils/protected"
 
 export const listProviders = query({
 	args: {},
@@ -11,16 +12,28 @@ export const listProviders = query({
 		const providers = await ctx.db.query("providers").collect()
 		const map = providers.reduce(
 			(acc, provider) => {
-				acc[provider.name] = provider._id
+				acc[provider.name] = provider
 				return acc
 			},
-			{} as Record<ProviderName, Doc<"providers">["_id"]>,
+			{} as Record<ProviderName, Doc<"providers">>,
 		)
 		return map
 	},
 })
 
-export const createUserProvider = mutation({
+export const getProviderByName = query({
+	args: {
+		name: v.string(),
+	},
+	handler: async (ctx, args) => {
+		return await ctx.db
+			.query("providers")
+			.filter(q => q.eq(q.field("name"), args.name))
+			.unique()
+	},
+})
+
+export const createUserProvider = protectedMutation({
 	args: {
 		provider: v.id("providers"),
 		providerUserId: v.string(),
@@ -29,14 +42,10 @@ export const createUserProvider = mutation({
 		avatarUrl: v.optional(v.string()),
 	},
 	handler: async (ctx, args) => {
-		const identity = await ctx.auth.getUserIdentity()
-
-		if (identity === null) {
-			throw new Error("Not authenticated")
-		}
+		const {user} = ctx
 
 		await ctx.db.insert("userProviders", {
-			userId: identity.subject,
+			userId: user._id,
 			provider: args.provider,
 			providerUserId: args.providerUserId,
 			createdAt: Date.now(),
@@ -44,6 +53,7 @@ export const createUserProvider = mutation({
 			name: args.name,
 			url: args.url,
 			avatarUrl: args.avatarUrl,
+			active: true,
 		})
 	},
 })
@@ -67,7 +77,7 @@ export const addProviderByName = action({
 		const providerMap = await ctx.runQuery(api.providers.listProviders)
 
 		await ctx.runMutation(api.providers.createUserProvider, {
-			provider: providerMap[user.provider],
+			provider: providerMap[user.provider]._id,
 			providerUserId: user.providerUserId,
 			name: user.name,
 			url: user.url,
@@ -75,7 +85,7 @@ export const addProviderByName = action({
 		})
 
 		await ctx.runMutation(api.subscribers.subscribe, {
-			provider: providerMap[user.provider],
+			provider: providerMap[user.provider]._id,
 			providerUserId: user.providerUserId,
 		})
 	},

@@ -9,6 +9,7 @@ import {fetchAnilistUser} from "./fetches/fetchAnilistUser"
 export async function getAnilistUser(
 	name: string,
 ): Promise<ProviderUser | null> {
+	console.log("getAnilistUser", name)
 	const user = await fetchAnilistUser({name})
 	if (!user) return null
 	return {
@@ -17,6 +18,7 @@ export async function getAnilistUser(
 		name: user.name,
 		avatarUrl: user.avatar.medium,
 		url: `https://anilist.co/user/${user.name}`,
+		active: true,
 	}
 }
 

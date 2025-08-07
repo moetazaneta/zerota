@@ -42,12 +42,12 @@ export default function RootLayout({
 	return (
 		<html lang="en" suppressHydrationWarning>
 			<body
-				className={`${geistSans.variable} ${geistMono.variable} ${martianGrotesk.variable} antialiased`}
+				className={`${geistSans.variable} ${geistMono.variable} ${martianGrotesk.variable} antialiased flex flex-col items-center gap-8`}
 			>
 				<ClerkProvider dynamic>
 					<ConvexClientProvider>
 						<SignedIn>
-							<header className="sticky top-0 z-10 bg-bg p-4 border-b-2 border-slate-200 dark:border-slate-800 flex flex-row justify-between items-center">
+							<header className="w-full sticky top-0 z-10 bg-bg p-4 border-b-2 border-ui flex flex-row justify-between items-center">
 								<UserButton />
 							</header>
 							{children}

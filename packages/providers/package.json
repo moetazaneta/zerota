@@ -5,8 +5,13 @@
 	"types": "index.ts",
 	"license": "MIT",
 	"dependencies": {
-		"zod": "^3.25.74",
+		"@zerota/db": "workspace:*",
 		"@zerota/utils": "workspace:*",
-		"@zerota/db": "workspace:*"
+		"axios": "^1.11.0",
+		"cheerio": "^1.1.2",
+		"dayjs": "^1.11.13",
+		"node-fetch": "^3.3.2",
+		"undici": "^7.13.0",
+		"zod": "^3.25.74"
 	}
 }

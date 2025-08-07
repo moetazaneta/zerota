@@ -1,8 +1,13 @@
 import type {UserJSON} from "@clerk/backend"
 import {type Validator, v} from "convex/values"
-import {internalMutation, type QueryCtx, query} from "./_generated/server"
+import {
+	internalMutation,
+	internalQuery,
+	type QueryCtx,
+	query,
+} from "./_generated/server"
 
-export const current = query({
+export const me = query({
 	args: {},
 	handler: async ctx => {
 		return await getCurrentUser(ctx)

@@ -11,7 +11,10 @@ const baseActivity = {
 	updatedAt: v.number(),
 }
 
-export const providerName = v.union(v.literal("anilist"))
+export const providerName = v.union(
+	v.literal("anilist"),
+	v.literal("goodreads"),
+)
 
 export type ProviderName = Doc<"providers">["name"]
 
@@ -73,15 +76,18 @@ export default defineSchema({
 		updatedAt: v.number(),
 	}),
 	userProviders: defineTable({
-		userId: v.string(),
-		name: v.string(),
-		avatarUrl: v.optional(v.string()),
-		url: v.string(),
+		userId: v.id("users"),
 		provider: v.id("providers"),
 		providerUserId: v.string(),
 		createdAt: v.number(),
 		updatedAt: v.number(),
-	}).index("byProviderUserId", ["providerUserId"]),
+		name: v.string(),
+		avatarUrl: v.optional(v.string()),
+		url: v.string(),
+		active: v.boolean(),
+	})
+		.index("byProviderUserId", ["providerUserId"])
+		.index("byUserId", ["userId"]),
 	activities: defineTable(
 		v.union(
 			v.object({

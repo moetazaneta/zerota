@@ -7,10 +7,14 @@
 		"user": "bun run ./index.ts"
 	},
 	"dependencies": {
-		"@zerota/utils": "workspace:*",
-		"convex": "^1.25.2",
 		"@zerota/db": "workspace:*",
+		"@zerota/utils": "workspace:*",
+		"axios": "^1.11.0",
+		"cheerio": "^1.1.2",
+		"convex": "^1.25.2",
+		"dayjs": "^1.11.13",
 		"effect": "^3.16.12",
+		"node-fetch": "^3.3.2",
 		"zod": "^3.25.74"
 	},
 	"devDependencies": {

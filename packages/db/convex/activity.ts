@@ -29,9 +29,10 @@ export const createStatusActivity = mutation({
 		createdAt: v.number(),
 	},
 	handler: async (ctx, args) => {
+		console.log("createStatusActivity", args)
 		const {provider, media, activity, createdAt, providerUserId} = args
 		const providerMap = await ctx.runQuery(api.providers.listProviders)
-		const providerId = providerMap[provider]
+		const providerId = providerMap[provider]._id
 
 		const providerUser = await ctx.runQuery(
 			api.userProviders.getProviderUserById,

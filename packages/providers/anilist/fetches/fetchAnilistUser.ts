@@ -39,6 +39,7 @@ export async function fetchAnilistUser({
 	name,
 	id,
 }: FetchAnilistUserOptions): Promise<AnilistUser | null> {
+	console.log("fetchAnilistUser", name, id)
 	const response = await fetch(anilistBaseUrl, {
 		method: "POST",
 		headers: {
@@ -46,10 +47,11 @@ export async function fetchAnilistUser({
 		},
 		body: JSON.stringify({
 			query: anilistUserQuery,
-			variables: {name, id},
+			variables: {name},
 		}),
 	})
 	const json = await response.json()
+	console.log("json", json)
 	const parsed = prettyParse(json, anilistUserResponseSchema)
 	return parsed.data.User
 }
