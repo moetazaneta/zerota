@@ -5,6 +5,7 @@ import {type Preloaded, useMutation, usePreloadedQuery} from "convex/react"
 import {EllipsisVerticalIcon, MenuIcon, TrashIcon} from "lucide-react"
 import Image from "next/image"
 import {IconRow} from "@/app/home/components/icon-row"
+import {useImportDialog} from "@/app/profile/hooks/useImportDialog"
 import {Button} from "@/components/ui/button"
 import {
 	DropdownMenu,
@@ -26,6 +27,7 @@ export function UserProviders({
 }: {
 	preloaded: Preloaded<typeof api.userProviders.mine>
 }) {
+	const {show, hide, visible, DialogComponent} = useImportDialog()
 	const userProviders = usePreloadedQuery(preloaded)
 
 	const update = useMutation(api.userProviders.update)
@@ -33,6 +35,8 @@ export function UserProviders({
 
 	return (
 		<div className="flex flex-col items-stretch gap-4w-full">
+			<DialogComponent />
+
 			<div className="flex flex-col">
 				{userProviders.map(provider => (
 					<Label key={provider._id} className="p-2">
@@ -75,7 +79,7 @@ export function UserProviders({
 											</Button>
 										</DropdownMenuTrigger>
 										<DropdownMenuContent align="end">
-											<DropdownMenuItem>Import</DropdownMenuItem>
+											<DropdownMenuItem onClick={show}>Import</DropdownMenuItem>
 											<DropdownMenuSeparator />
 											<DropdownMenuSub>
 												<DropdownMenuSubTrigger variant="destructive">
