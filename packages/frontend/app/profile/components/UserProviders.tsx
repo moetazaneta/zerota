@@ -11,7 +11,11 @@ import {
 	DropdownMenuContent,
 	DropdownMenuItem,
 	DropdownMenuLabel,
+	DropdownMenuPortal,
 	DropdownMenuSeparator,
+	DropdownMenuSub,
+	DropdownMenuSubContent,
+	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {Label} from "@/components/ui/label"
@@ -73,12 +77,24 @@ export function UserProviders({
 										<DropdownMenuContent align="end">
 											<DropdownMenuItem>Import</DropdownMenuItem>
 											<DropdownMenuSeparator />
-											<DropdownMenuItem
-												variant="destructive"
-												onClick={() => remove({id: provider._id})}
-											>
-												Delete
-											</DropdownMenuItem>
+											<DropdownMenuSub>
+												<DropdownMenuSubTrigger variant="destructive">
+													Delete
+												</DropdownMenuSubTrigger>
+												<DropdownMenuPortal>
+													<DropdownMenuSubContent>
+														<DropdownMenuLabel>Are you sure?</DropdownMenuLabel>
+														<DropdownMenuSeparator />
+														<DropdownMenuItem
+															variant="destructive"
+															onClick={() => remove({id: provider._id})}
+														>
+															Yes
+														</DropdownMenuItem>
+														<DropdownMenuItem>No</DropdownMenuItem>
+													</DropdownMenuSubContent>
+												</DropdownMenuPortal>
+											</DropdownMenuSub>
 										</DropdownMenuContent>
 									</DropdownMenu>
 								</div>
