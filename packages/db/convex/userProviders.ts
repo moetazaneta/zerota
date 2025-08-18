@@ -51,7 +51,6 @@ export const addUserProvider = protectedAction({
 	},
 	handler: async (ctx, args) => {
 		const {providerName, nameOrUrl} = args
-		console.log("addUserProvider", providerName, nameOrUrl)
 		if (providerName !== "anilist") {
 			throw new Error("Only Anilist is supported for now")
 		}
@@ -59,16 +58,13 @@ export const addUserProvider = protectedAction({
 		const provider = await ctx.runQuery(api.providers.getProviderByName, {
 			name: providerName,
 		})
-		console.log("provider", provider)
 
 		if (!provider) {
 			throw new Error("Provider not found")
 		}
 
 		const name = extractName(nameOrUrl)
-		console.log("name", name)
 		const anilistUser = await getAnilistUser(name)
-		console.log("anilistUser", anilistUser)
 		if (!anilistUser) {
 			throw new Error("Anilist user not found")
 		}
@@ -84,7 +80,6 @@ export const addUserProvider = protectedAction({
 })
 
 function extractName(nameOrUrl: string) {
-	console.log("extractName", nameOrUrl)
 	if (nameOrUrl.includes("https://anilist.co/user/")) {
 		return nameOrUrl.split("/").pop()!
 	}

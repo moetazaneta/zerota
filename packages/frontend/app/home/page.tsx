@@ -2,12 +2,9 @@
 
 import {api} from "@zerota/db/convex/_generated/api"
 import type {Id} from "@zerota/db/convex/_generated/dataModel"
-import type {Media, StatusActivity} from "@zerota/db/convex/schema"
 import {usePaginatedQuery} from "convex/react"
 import {motion} from "motion/react"
-import Image from "next/image"
-import Link from "next/link"
-import {useRef, useState} from "react"
+import {useState} from "react"
 import {Activity} from "@/app/home/components/activity"
 
 export default function Home() {
@@ -21,6 +18,7 @@ export default function Home() {
 	const [hoveredTab, setHoveredTab] = useState<Id<"activities"> | null>(null)
 
 	return (
+		// biome-ignore lint/a11y/noStaticElementInteractions: why not tho?
 		<div
 			className="flex flex-col gap-0 relative items-start"
 			onMouseLeave={() => setHoveredTab(null)}

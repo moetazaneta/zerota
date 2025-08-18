@@ -29,7 +29,6 @@ export const createStatusActivity = mutation({
 		createdAt: v.number(),
 	},
 	handler: async (ctx, args) => {
-		console.log("createStatusActivity", args)
 		const {provider, media, activity, createdAt, providerUserId} = args
 		const providerMap = await ctx.runQuery(api.providers.listProviders)
 		const providerId = providerMap[provider]._id
@@ -42,8 +41,6 @@ export const createStatusActivity = mutation({
 			throw new Error("User provider not found")
 		}
 		const userId = providerUser.userId
-
-		console.log("userId", userId)
 
 		const mediaId = await (async () => {
 			const existingMedia = await ctx.db
@@ -64,8 +61,6 @@ export const createStatusActivity = mutation({
 			})
 		})()
 
-		console.log("mediaId", mediaId)
-
 		const existingActivity = await ctx.db
 			.query("activities")
 			.filter(q => q.eq(q.field("userId"), userId))
@@ -79,7 +74,6 @@ export const createStatusActivity = mutation({
 		// TODO: troubleshoot why filtering by media doesn't work
 		for await (const activity of existingActivity) {
 			if (activity.media === mediaId) {
-				console.log("already exists")
 				return
 			}
 		}
@@ -96,7 +90,6 @@ export const createStatusActivity = mutation({
 			createdAt,
 			updatedAt: Date.now(),
 		})
-		console.log("inserted")
 	},
 })
 
@@ -115,7 +108,6 @@ export const publicList = query({
 		paginationOpts: paginationOptsValidator,
 	},
 	handler: async (ctx, args) => {
-		console.log("publicList")
 		const {paginationOpts} = args
 		const activitiesPage = await ctx.db
 			.query("activities")
@@ -147,8 +139,6 @@ export const publicList = query({
 				),
 			)
 		).filter(v => v != null)
-		console.log("userIds", userIds)
-		console.log("users", users)
 		const providerUsers = (
 			await Promise.all(
 				providerUserIds.map(id =>
@@ -162,9 +152,7 @@ export const publicList = query({
 			.flat()
 			.filter(v => v != null)
 
-		console.log("providerIds", providerIds)
 		const providers = (await getAll(ctx.db, providerIds)).filter(v => v != null)
-		console.log("providers", providers)
 
 		return {
 			...activitiesPage,
@@ -172,7 +160,6 @@ export const publicList = query({
 				await Promise.all(
 					activitiesPage.page.map(async activity => {
 						if (activity.kind !== "status") {
-							console.log("activity", activity)
 							return null
 						}
 
@@ -185,7 +172,6 @@ export const publicList = query({
 								p.provider === provider?._id,
 						)
 						if (!media || !user || !providerUser || !provider) {
-							console.log("media", media, user, providerUser, provider)
 							return null
 						}
 

@@ -6,7 +6,6 @@ import {
 	RedirectToSignIn,
 	SignedIn,
 	SignedOut,
-	UserButton,
 } from "@clerk/nextjs"
 import {Nav} from "@/app/components/nav"
 import ConvexClientProvider from "@/components/ConvexClientProvider"

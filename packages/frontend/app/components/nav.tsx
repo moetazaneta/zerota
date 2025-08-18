@@ -17,7 +17,7 @@ const links = [
 		label: "Home",
 	},
 	{
-		href: "/dev-tool",
+		href: "/dev-tools",
 		icon: "settings",
 		label: "Dev tools",
 	},
@@ -159,13 +159,15 @@ export function Nav({
 					{icon === "user" && (
 						<IconRow
 							renderImage={
-								<Image
-									src={user?.imageUrl ?? ""}
-									alt="User"
-									width={50}
-									height={50}
-									className="size-6 rounded-lg"
-								/>
+								user?.imageUrl && (
+									<Image
+										src={user.imageUrl}
+										alt="User"
+										width={50}
+										height={50}
+										className="size-6 rounded-lg"
+									/>
+								)
 							}
 							renderContent={<div>{label}</div>}
 						/>

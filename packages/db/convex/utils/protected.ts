@@ -73,7 +73,6 @@ export async function getCurrentUser(ctx: QueryCtx) {
 }
 
 export async function getUserByExternalId(ctx: QueryCtx, externalId: string) {
-	console.log("getUserByExternalId", externalId)
 	return await ctx.db
 		.query("users")
 		.withIndex("byExternalId", q => q.eq("externalId", externalId))

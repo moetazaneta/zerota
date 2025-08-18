@@ -1,16 +1,12 @@
 import type {UserJSON} from "@clerk/backend"
 import {type Validator, v} from "convex/values"
-import {
-	internalMutation,
-	internalQuery,
-	type QueryCtx,
-	query,
-} from "./_generated/server"
+import {internalMutation, type QueryCtx, query} from "./_generated/server"
+import {protectedQuery} from "./utils/protected"
 
-export const me = query({
+export const me = protectedQuery({
 	args: {},
 	handler: async ctx => {
-		return await getCurrentUser(ctx)
+		return ctx.user
 	},
 })
 
@@ -26,7 +22,6 @@ export const getById = query({
 export const upsertFromClerk = internalMutation({
 	args: {data: v.any() as Validator<UserJSON>}, // no runtime validation, trust Clerk
 	async handler(ctx, {data}) {
-		console.log("upsertFromClerk", data)
 		const userAttributes = {
 			username: data.username || undefined,
 			name:
@@ -49,7 +44,6 @@ export const upsertFromClerk = internalMutation({
 export const deleteFromClerk = internalMutation({
 	args: {clerkUserId: v.string()},
 	async handler(ctx, {clerkUserId}) {
-		console.log("deleteFromClerk", clerkUserId)
 		const user = await getUserByExternalId(ctx, clerkUserId)
 
 		if (user !== null) {
@@ -77,7 +71,6 @@ export async function getCurrentUser(ctx: QueryCtx) {
 }
 
 export async function getUserByExternalId(ctx: QueryCtx, externalId: string) {
-	console.log("getUserByExternalId", externalId)
 	return await ctx.db
 		.query("users")
 		.withIndex("byExternalId", q => q.eq("externalId", externalId))
