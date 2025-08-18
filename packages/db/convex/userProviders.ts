@@ -79,6 +79,27 @@ export const addUserProvider = protectedAction({
 	},
 })
 
+export const update = protectedMutation({
+	args: {
+		id: v.id("userProviders"),
+		active: v.boolean(),
+	},
+	handler: async (ctx, args) => {
+		const {id, active} = args
+		await ctx.db.patch(id, {active})
+	},
+})
+
+export const remove = protectedMutation({
+	args: {
+		id: v.id("userProviders"),
+	},
+	handler: async (ctx, args) => {
+		const {id} = args
+		await ctx.db.delete(id)
+	},
+})
+
 function extractName(nameOrUrl: string) {
 	if (nameOrUrl.includes("https://anilist.co/user/")) {
 		return nameOrUrl.split("/").pop()!

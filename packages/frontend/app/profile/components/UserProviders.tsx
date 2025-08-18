@@ -1,9 +1,19 @@
 "use client"
 
-import type {api} from "@zerota/db/convex/_generated/api"
-import {type Preloaded, usePreloadedQuery} from "convex/react"
+import {api} from "@zerota/db/convex/_generated/api"
+import {type Preloaded, useMutation, usePreloadedQuery} from "convex/react"
+import {EllipsisVerticalIcon, MenuIcon, TrashIcon} from "lucide-react"
 import Image from "next/image"
 import {IconRow} from "@/app/home/components/icon-row"
+import {Button} from "@/components/ui/button"
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuSeparator,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {Label} from "@/components/ui/label"
 import {Switch} from "@/components/ui/switch"
 
@@ -14,34 +24,63 @@ export function UserProviders({
 }) {
 	const userProviders = usePreloadedQuery(preloaded)
 
+	const update = useMutation(api.userProviders.update)
+	const remove = useMutation(api.userProviders.remove)
+
 	return (
 		<div className="flex flex-col items-stretch gap-4w-full">
-			{/* <h3 className="text-lg px-2">My providers</h3> */}
 			<div className="flex flex-col">
 				{userProviders.map(provider => (
 					<Label key={provider._id} className="p-2">
 						<IconRow
-							className="w-full items-center gap-4"
+							className="w-full items-center gap-6 relative"
 							renderImage={
 								<Image
-									src={provider.provider.logoUrl}
+									src={provider.avatarUrl ?? ""}
 									alt={provider.provider.name}
 									width={50}
 									height={50}
-									className="size-8 rounded-lg object-cover"
+									className="size-12 rounded-xl object-cover"
 								/>
 							}
 							renderContent={
 								<div className="flex w-full items-center gap-2">
 									<Image
-										src={provider.avatarUrl ?? ""}
+										src={provider.provider.logoUrl}
 										alt={provider.provider.name}
 										width={50}
 										height={50}
-										className="size-12 rounded-xl object-cover"
+										className="size-8 rounded-lg object-cover absolute left-8 -bottom-2 border-4 border-bg"
 									/>
 									<div className="text-lg">{provider.name}</div>
-									<Switch className="ml-auto" />
+									<Switch
+										className="ml-auto"
+										checked={provider.active}
+										onCheckedChange={() =>
+											update({id: provider._id, active: !provider.active})
+										}
+									/>
+									<DropdownMenu>
+										<DropdownMenuTrigger asChild>
+											<Button
+												variant="ghost"
+												icon
+												onClick={() => remove({id: provider._id})}
+											>
+												<EllipsisVerticalIcon className="size-8" />
+											</Button>
+										</DropdownMenuTrigger>
+										<DropdownMenuContent align="end">
+											<DropdownMenuItem>Import</DropdownMenuItem>
+											<DropdownMenuSeparator />
+											<DropdownMenuItem
+												variant="destructive"
+												onClick={() => remove({id: provider._id})}
+											>
+												Delete
+											</DropdownMenuItem>
+										</DropdownMenuContent>
+									</DropdownMenu>
 								</div>
 							}
 						/>
