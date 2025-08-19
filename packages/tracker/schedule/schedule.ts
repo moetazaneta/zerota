@@ -13,11 +13,11 @@ export class GoodreadsQueue extends Context.Tag("GoodreadsQueue")<
 	Queue.Queue<Doc<"subscribedUsers">["providerUserId"]>
 >() {}
 
-const anilistQueue = Effect.scoped(
+export const anilistQueue = Effect.scoped(
 	Queue.bounded<Doc<"subscribedUsers">["providerUserId"]>(100),
 )
 
-const goodreadsQueue = Effect.scoped(
+export const goodreadsQueue = Effect.scoped(
 	Queue.bounded<Doc<"subscribedUsers">["providerUserId"]>(100),
 )
 
@@ -25,7 +25,7 @@ const program = Effect.gen(function* () {
 	const enqueue = yield* Effect.fork(enqueueSubscribedUsers)
 	const process = yield* Effect.fork(processSubscribedUsers)
 
-	yield* Fiber.join(enqueue)
+	// yield* Fiber.join(enqueue)
 	yield* Fiber.join(process)
 })
 

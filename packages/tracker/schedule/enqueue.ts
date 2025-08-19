@@ -45,13 +45,13 @@ const goodreadsSubscribedUsers = Effect.gen(function* () {
 	return subscribers
 })
 
-const enqueueAnilistUsers = (users: Doc<"subscribedUsers">[]) =>
+export const enqueueAnilistUsers = (
+	userIds: Doc<"subscribedUsers">["providerUserId"][],
+) =>
 	Effect.gen(function* () {
 		const queue = yield* AnilistQueue
 
-		const action = Effect.forEach(users, user =>
-			Queue.offer(queue, user.providerUserId),
-		)
+		const action = Effect.forEach(userIds, userId => Queue.offer(queue, userId))
 
 		const delayMs = yield* Config.number("ANILIST_QUEUE_DELAY_MS")
 		const duration = Duration.millis(delayMs)

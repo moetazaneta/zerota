@@ -4,9 +4,12 @@
 	"main": "index.ts",
 	"scripts": {
 		"dev": "bun run ./schedule/schedule.ts",
+		"serve": "bun run ./server/server.ts",
 		"user": "bun run ./index.ts"
 	},
 	"dependencies": {
+		"@effect/platform": "^0.90.4",
+		"@effect/platform-bun": "^0.79.0",
 		"@zerota/db": "workspace:*",
 		"@zerota/utils": "workspace:*",
 		"axios": "^1.11.0",
