@@ -59,10 +59,7 @@ export function useSimpleDialog({
 	const DialogComponent = useCallback(() => {
 		return (
 			<Dialog open={visible} onOpenChange={setVisible}>
-				<DialogContent
-					showCloseButton={closable}
-					style={{maxWidth: `${maxWidth}px`}}
-				>
+				<DialogContent style={{maxWidth: `${maxWidth}px`}}>
 					<DialogHeader>
 						<DialogTitle>{title}</DialogTitle>
 					</DialogHeader>
@@ -73,7 +70,9 @@ export function useSimpleDialog({
 								{cancelText}
 							</Button>
 						)}
-						<Button onClick={handleConfirm}>{confirmText}</Button>
+						<Button className="grow-1" onClick={handleConfirm}>
+							{confirmText}
+						</Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>

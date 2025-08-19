@@ -158,6 +158,7 @@
 	--radius-xl: calc(var(--radius) + 4px);
 	--radius-2xl: calc(var(--radius) + 8px);
 	--radius-3xl: calc(var(--radius) + 16px);
+	--radius-4xl: calc(var(--radius) + 32px);
 	--radius-dialog: 48px;
 
 	/* --color-sidebar-ring: var(--sidebar-ring);

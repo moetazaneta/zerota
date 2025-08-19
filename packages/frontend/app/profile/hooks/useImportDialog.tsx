@@ -8,6 +8,7 @@ export function useImportDialog() {
 		),
 		confirmText: "Import",
 		cancelText: "Cancel",
+		maxWidth: 400,
 		onConfirm: () => {
 			console.log("import")
 		},

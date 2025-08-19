@@ -47,7 +47,7 @@ function DialogOverlay({
 function DialogContent({
 	className,
 	children,
-	showCloseButton = true,
+	showCloseButton = false,
 	headless = false,
 	...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
@@ -61,7 +61,7 @@ function DialogContent({
 				data-slot="dialog-content"
 				className={cn(
 					"data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 fixed top-[50%] left-[50%] z-50 translate-x-[-50%] translate-y-[-50%] shadow-lg duration-200",
-					!headless && "bg-background grid w-full gap-8 rounded-3xl border p-6",
+					!headless && "bg-background grid w-full gap-8 rounded-4xl border p-6",
 					// max-w-[calc(100%-2rem)]  sm:max-w-lg
 					className,
 				)}
@@ -104,7 +104,7 @@ function DialogFooter({className, ...props}: React.ComponentProps<"div">) {
 		<div
 			data-slot="dialog-footer"
 			className={cn(
-				"flex flex-col-reverse gap-4 sm:flex-row sm:justify-end",
+				"flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
 				className,
 			)}
 			{...props}
