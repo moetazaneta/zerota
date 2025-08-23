@@ -49,15 +49,36 @@ export const enqueueAnilistUsers = (
 	userIds: Doc<"subscribedUsers">["providerUserId"][],
 ) =>
 	Effect.gen(function* () {
+		yield* Console.log("enqueueing anilist users", userIds)
 		const queue = yield* AnilistQueue
 
-		const action = Effect.forEach(userIds, userId => Queue.offer(queue, userId))
+		yield* Console.log("anilist queue", yield* Queue.size(queue))
+
+		const action = Effect.forEach(userIds, userId => {
+			console.log("anilist action", userId)
+			const q = Queue.offer(queue, userId)
+			return q.pipe(
+				Effect.tap(
+					qu =>
+						function* () {
+							yield* Console.log(
+								"anilist action rec queue",
+								yield* Queue.size(queue),
+							)
+						},
+				),
+			)
+		})
 
 		const delayMs = yield* Config.number("ANILIST_QUEUE_DELAY_MS")
 		const duration = Duration.millis(delayMs)
 		const schedule = Schedule.fixed(duration)
 
+		yield* Console.log("anilist before repeat", delayMs)
+
 		yield* Effect.repeat(action, schedule)
+
+		yield* Console.log("anilist users enqueued")
 	})
 
 const enqueueGoodreadsUsers = (users: Doc<"subscribedUsers">[]) =>

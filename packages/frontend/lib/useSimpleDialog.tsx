@@ -1,99 +1,105 @@
-"use client"
+"use client";
 
-import {useCallback, useState} from "react"
-import {Button} from "@/components/ui/button"
+import { useCallback, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
-	Dialog,
-	DialogContent,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from "@/components/ui/dialog"
-import {cn} from "@/lib/cn"
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/cn";
 
-interface UseSimpleDialogOptions {
-	title?: string
-	renderContent: React.ReactNode
-	confirmText?: string
-	cancelText?: string
-	showCancel?: boolean
-	closable?: boolean
-	maxWidth?: number
-	onConfirm?: () => void
-	onCancel?: () => void
+interface UseSimpleDialogOptions<TData = unknown> {
+  title?: string;
+  renderContent: React.ReactNode;
+  confirmText?: string;
+  cancelText?: string;
+  showCancel?: boolean;
+  closable?: boolean;
+  maxWidth?: number;
+  onConfirm?: (data: TData) => void;
+  onCancel?: (data: TData) => void;
 }
 
-interface UseSimpleDialogReturn {
-	show: () => void
-	hide: () => void
-	visible: boolean
-	DialogComponent: React.ComponentType
+interface UseSimpleDialogReturn<TData = undefined> {
+  show: (data: TData) => void;
+  hide: () => void;
+  visible: boolean;
+  DialogComponent: React.ComponentType;
 }
 
-export function useSimpleDialog({
-	title,
-	renderContent,
-	confirmText = "Confirm",
-	cancelText = "Cancel",
-	showCancel = true,
-	closable = true,
-	maxWidth = 600,
-	onConfirm,
-	onCancel,
-}: UseSimpleDialogOptions): UseSimpleDialogReturn {
-	const [visible, setVisible] = useState(false)
+const EmptySymbol = Symbol("Empty");
 
-	const show = useCallback(() => setVisible(true), [])
-	const hide = useCallback(() => setVisible(false), [])
+export function useSimpleDialog<TData = undefined>({
+  title,
+  renderContent,
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  showCancel = true,
+  closable = true,
+  maxWidth = 600,
+  onConfirm,
+  onCancel,
+}: UseSimpleDialogOptions<TData>): UseSimpleDialogReturn<TData> {
+  const [visible, setVisible] = useState(false);
+  const [data, setData] = useState<TData | typeof EmptySymbol>(EmptySymbol);
 
-	const handleConfirm = useCallback(() => {
-		onConfirm?.()
-		hide()
-	}, [onConfirm, hide])
+  const show = useCallback((data: TData) => {
+    setData(data);
+    setVisible(true);
+  }, []);
+  const hide = useCallback(() => setVisible(false), []);
 
-	const handleCancel = useCallback(() => {
-		onCancel?.()
-		hide()
-	}, [onCancel, hide])
+  const handleConfirm = useCallback(() => {
+    onConfirm?.(data === EmptySymbol ? undefined : data);
+    hide();
+  }, [onConfirm, hide]);
 
-	const DialogComponent = useCallback(() => {
-		return (
-			<Dialog open={visible} onOpenChange={setVisible}>
-				<DialogContent style={{maxWidth: `${maxWidth}px`}}>
-					<DialogHeader>
-						<DialogTitle>{title}</DialogTitle>
-					</DialogHeader>
-					{renderContent}
-					<DialogFooter>
-						{showCancel && (
-							<Button variant="outline" onClick={handleCancel}>
-								{cancelText}
-							</Button>
-						)}
-						<Button className="grow-1" onClick={handleConfirm}>
-							{confirmText}
-						</Button>
-					</DialogFooter>
-				</DialogContent>
-			</Dialog>
-		)
-	}, [
-		visible,
-		closable,
-		renderContent,
-		showCancel,
-		confirmText,
-		cancelText,
-		handleConfirm,
-		handleCancel,
-		title,
-		maxWidth,
-	])
+  const handleCancel = useCallback(() => {
+    onCancel?.(data === EmptySymbol ? undefined : data);
+    hide();
+  }, [onCancel, hide]);
 
-	return {
-		show,
-		hide,
-		visible,
-		DialogComponent,
-	}
+  const DialogComponent = useCallback(() => {
+    return (
+      <Dialog open={visible} onOpenChange={setVisible}>
+        <DialogContent style={{ maxWidth: `${maxWidth}px` }}>
+          <DialogHeader>
+            <DialogTitle>{title}</DialogTitle>
+          </DialogHeader>
+          {renderContent}
+          <DialogFooter>
+            {showCancel && (
+              <Button variant="outline" onClick={handleCancel}>
+                {cancelText}
+              </Button>
+            )}
+            <Button className="grow-1" onClick={handleConfirm}>
+              {confirmText}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
+  }, [
+    visible,
+    closable,
+    renderContent,
+    showCancel,
+    confirmText,
+    cancelText,
+    handleConfirm,
+    handleCancel,
+    title,
+    maxWidth,
+  ]);
+
+  return {
+    show,
+    hide,
+    visible,
+    DialogComponent,
+  };
 }

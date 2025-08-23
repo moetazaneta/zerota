@@ -1,59 +1,35 @@
-// What I need to do:
-// 1. get user
-// 2. get user active providers
-// 3. fetch provider data one by one
-//
-// I guess I need queue for each provider,
-// so we don't meet timeout
+import * as v from "valibot";
+import { createHTTPServer } from "@trpc/server/adapters/standalone";
+import { publicProcedure, router } from "./trpc";
+import { http } from "./http";
+import { api } from "@zerota/db/convex/_generated/api";
+import { getAnilistActivities } from "./anilist";
+import cors from "cors";
 
-import {Console, Context, Data, Effect, Either, Option} from "effect"
-import {getAnilistUser} from "./providers/abstract/getUser"
-import type {ProviderUser} from "./providers/types/user"
+const appRouter = router({
+  fetchAnilistActivities: publicProcedure
+    .input(v.object({ id: v.string() }))
+    .mutation(async ({ input }) => {
+      console.log("for user:", input.id);
+      const activities = await getAnilistActivities(input.id);
+      console.log("activities:", activities);
+      const results = await Promise.all(
+        activities.map((activity) =>
+          http.mutation(api.activity.createStatusActivity, activity),
+        ),
+      );
+      console.log("results:", results);
+      return results;
+    }),
+});
 
-class AnilistProvider extends Context.Tag("AnilistProvider")<
-	AnilistProvider,
-	{
-		readonly user: (
-			name: string,
-		) => Effect.Effect<ProviderUser, FetchError | UserNotFoundError>
-	}
->() {}
+export type AppRouter = typeof appRouter;
 
-class UserNotFoundError extends Data.TaggedError("UserNotFoundError")<{
-	name: string
-}> {}
-class FetchError extends Data.TaggedError("FetchError")<{reason: unknown}> {}
+const server = createHTTPServer({
+  middleware: cors(),
+  router: appRouter,
+});
 
-const getUser = (name: string) =>
-	Effect.gen(function* () {
-		const user = yield* Effect.either(
-			Effect.tryPromise(() => getAnilistUser(name)),
-		)
+export const port = 3001;
 
-		if (Either.isLeft(user)) {
-			return yield* new FetchError({reason: user.left})
-		}
-
-		if (!user.right) {
-			return yield* new UserNotFoundError({name})
-		}
-
-		return user.right
-	})
-
-const program = Effect.gen(function* () {
-	const anilistProvider = yield* AnilistProvider
-	const user = yield* anilistProvider.user("NyashkaNot")
-	return user
-}).pipe(
-	Effect.provideService(AnilistProvider, {
-		user: getUser,
-	}),
-	Effect.catchTag("FetchError", e => Console.error(e)),
-	Effect.catchTag("UserNotFoundError", e =>
-		Console.error(`User ${e.name} not found`),
-	),
-	Effect.tap(u => Console.log(u)),
-)
-
-Effect.runFork(program)
+server.listen(port);

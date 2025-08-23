@@ -1,29 +1,31 @@
 {
-	"name": "zerota-monorepo",
-	"version": "1.0.0",
-	"description": "",
-	"main": "index.js",
-	"scripts": {
-		"dev": "pnpm -r --parallel --filter db --filter frontend run dev",
-		"preinstall": "npx only-allow pnpm"
-	},
-	"keywords": [],
-	"author": "",
-	"license": "ISC",
-	"packageManager": "pnpm@10.12.3",
-	"pnpm": {
-		"onlyBuiltDependencies": [
-			"esbuild",
-			"@tailwindcss/oxide"
-		],
-		"ignoredBuiltDependencies": [
-			"@clerk/shared",
-			"sharp",
-			"unrs-resolver"
-		]
-	},
-	"devDependencies": {
-		"@biomejs/biome": "2.1.2",
-		"@clerk/types": "^4.63.0"
-	}
+  "name": "zerota-monorepo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter db --filter frontend --filter tracker-new run dev",
+    "fe": "pnpm -r --parallel --filter db --filter frontend run dev",
+    "tracker": "pnpm --filter tracker-new run dev",
+    "preinstall": "npx only-allow pnpm"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.3",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "@tailwindcss/oxide"
+    ],
+    "ignoredBuiltDependencies": [
+      "@clerk/shared",
+      "sharp",
+      "unrs-resolver"
+    ]
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.1.2",
+    "@clerk/types": "^4.63.0"
+  }
 }

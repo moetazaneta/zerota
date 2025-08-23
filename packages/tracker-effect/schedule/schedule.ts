@@ -29,9 +29,9 @@ const program = Effect.gen(function* () {
 	yield* Fiber.join(process)
 })
 
-Effect.runPromise(
-	program.pipe(
-		Effect.provideServiceEffect(AnilistQueue, anilistQueue),
-		Effect.provideServiceEffect(GoodreadsQueue, goodreadsQueue),
-	),
-)
+// Effect.runPromise(
+// 	program.pipe(
+// 		Effect.provideServiceEffect(AnilistQueue, anilistQueue),
+// 		Effect.provideServiceEffect(GoodreadsQueue, goodreadsQueue),
+// 	),
+// )

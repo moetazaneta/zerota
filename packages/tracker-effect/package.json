@@ -1,24 +1,23 @@
 {
-  "name": "@zerota/tracker-new",
+  "name": "@zerota/tracker-effect",
   "module": "index.ts",
   "main": "index.ts",
   "scripts": {
-    "dev": "bun run ./index.ts"
+    "dev": "bun run ./schedule/schedule.ts",
+    "serve": "bun run ./server/server.ts",
+    "user": "bun run ./index.ts"
   },
   "dependencies": {
-    "@trpc/client": "^11.5.0",
-    "@trpc/server": "^11.5.0",
+    "@effect/platform": "^0.90.4",
+    "@effect/platform-bun": "^0.79.0",
     "@zerota/db": "workspace:*",
-    "@zerota/providers": "workspace:*",
     "@zerota/utils": "workspace:*",
     "axios": "^1.11.0",
     "cheerio": "^1.1.2",
     "convex": "^1.25.2",
-    "cors": "^2.8.5",
     "dayjs": "^1.11.13",
     "effect": "^3.16.12",
     "node-fetch": "^3.3.2",
-    "valibot": "^1.1.0",
     "zod": "^3.25.74"
   },
   "devDependencies": {
