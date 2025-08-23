@@ -1,14 +1,15 @@
-import type {Metadata} from "next"
-import localFont from "next/font/local"
-import "./globals.css"
+import {Nav} from "@/app/components/nav"
+import ConvexClientProvider from "@/components/ConvexClientProvider"
 import {
 	ClerkProvider,
 	RedirectToSignIn,
 	SignedIn,
 	SignedOut,
 } from "@clerk/nextjs"
-import {Nav} from "@/app/components/nav"
-import ConvexClientProvider from "@/components/ConvexClientProvider"
+import type {Metadata} from "next"
+import localFont from "next/font/local"
+import "./globals.css"
+import {FollowingAlert} from "@/components/ui/following-alert"
 
 const martianGrotesk = localFont({
 	src: "./fonts/MartianGrotesk.woff2",
@@ -38,6 +39,7 @@ export default function RootLayout({
 								<aside className="flex flex-col justify-between items-center">
 									<Nav />
 								</aside>
+								<FollowingAlert />
 								{children}
 							</div>
 						</SignedIn>
