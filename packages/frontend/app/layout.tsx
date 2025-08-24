@@ -1,5 +1,3 @@
-import {Nav} from "@/app/components/nav"
-import ConvexClientProvider from "@/components/ConvexClientProvider"
 import {
 	ClerkProvider,
 	RedirectToSignIn,
@@ -8,8 +6,10 @@ import {
 } from "@clerk/nextjs"
 import type {Metadata} from "next"
 import localFont from "next/font/local"
+import {Nav} from "@/app/components/nav"
+import ConvexClientProvider from "@/components/ConvexClientProvider"
 import "./globals.css"
-import {FollowingAlert} from "@/components/ui/following-alert"
+import {FollowingLayoutProvider} from "@/components/ui/following-alert"
 
 const martianGrotesk = localFont({
 	src: "./fonts/MartianGrotesk.woff2",
@@ -35,13 +35,14 @@ export default function RootLayout({
 				<ClerkProvider dynamic>
 					<ConvexClientProvider>
 						<SignedIn>
-							<div className="flex flex-col gap-8 p-8 max-w-screen-lg mx-auto">
-								<aside className="flex flex-col justify-between items-center">
-									<Nav />
-								</aside>
-								<FollowingAlert />
-								{children}
-							</div>
+							<FollowingLayoutProvider>
+								<div className="flex flex-col gap-8 p-8 max-w-screen-lg mx-auto">
+									<aside className="flex flex-col justify-between items-center">
+										<Nav />
+									</aside>
+									{children}
+								</div>
+							</FollowingLayoutProvider>
 						</SignedIn>
 						<SignedOut>
 							<RedirectToSignIn />

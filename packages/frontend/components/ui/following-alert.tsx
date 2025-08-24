@@ -1,103 +1,220 @@
 "use client"
 
 import {atom, useAtom, useAtomValue} from "jotai"
-import {type ReactNode, useEffect, useRef, useState} from "react"
+import {BrushCleaningIcon} from "lucide-react"
+import {
+	AnimatePresence,
+	LayoutGroup,
+	motion,
+	useMotionValue,
+} from "motion/react"
+import {
+	type CSSProperties,
+	type PropsWithChildren,
+	type ReactNode,
+	type RefObject,
+	useEffect,
+	useState,
+} from "react"
+import {Toaster, toast, useSonner} from "sonner"
 import {cn} from "@/lib"
-import {Button} from "./button"
-import {Spinner} from "./shadcn-io/spinner"
+import {useEvent} from "@/lib/useEvent"
 
-const followingAtom = atom(false)
-const messageAtom = atom<ReactNode>("")
+type Message = {id: string; content: ReactNode}
+
+const messageAtom = atom<Message | null>(null)
 
 export function useFollowingAlert() {
-	const [isFollowing, setFollowing] = useAtom(followingAtom)
 	const [message, setMessage] = useAtom(messageAtom)
+	const {toasts} = useSonner()
 
-	const timerId = useRef<NodeJS.Timeout | null>(null)
+	const show = useEvent((content: ReactNode, customId?: string) => {
+		const id = customId ?? crypto.randomUUID()
+		const existingToast = toasts.some(t => t.id === id)
+		if (existingToast) {
+			moveToToast({id, content})
+		} else {
+			setMessage({id, content})
+		}
 
-	function show(message: ReactNode, duration = 5000) {
-		setFollowing(true)
-		setMessage(message)
+		return id
+	})
 
-		timerId.current = setTimeout(hide, duration)
-	}
+	const moveToToast = useEvent((message: Message) => {
+		toast.custom(() => <Alert message={message} className="w-[300px]" />, {
+			id: message.id,
+		})
+	})
+
+	const drop = useEvent(() => {
+		if (!message) return
+		moveToToast(message)
+	})
 
 	function hide() {
-		if (timerId.current) {
-			clearTimeout(timerId.current)
-			timerId.current = null
-		}
-
-		setFollowing(false)
+		setMessage(null)
 	}
 
-	return {
-		isFollowing,
-		message,
-		show,
-		hide,
-	}
+	return {show, drop, hide}
 }
 
-export function FollowingAlert() {
-	const isFollowing = useAtomValue(followingAtom)
+export function FollowingLayoutProvider(props: PropsWithChildren) {
 	const message = useAtomValue(messageAtom)
+	return (
+		<LayoutGroup>
+			{props.children}
+			<AnimatePresence>
+				<CustomToaster key="toaster" className="relative z-10" />
+				<DropZone
+					key="drop"
+					className="z-40 w-screen min-h-[70px] absolute bottom-0 right-0"
+				/>
+				<Following key="following" className="z-50">
+					{message && (
+						<Alert
+							key={`following ${message.id}`}
+							message={message}
+							className="fixed"
+						/>
+					)}
+				</Following>
+			</AnimatePresence>
+		</LayoutGroup>
+	)
+}
 
-	const [shouldZoomzoom, setShouldZoomzoom] = useState(false)
+function Alert({
+	message,
+	className,
+	style,
+	ref,
+}: {
+	message: Message
+	className?: string
+	style?: CSSProperties
+	ref?: RefObject<HTMLDivElement | null>
+}) {
+	return (
+		<motion.div
+			ref={ref}
+			className={cn(
+				"bg-black text-white p-2 text-sm rounded-xl flex items-center gap-2 w-[300px] shadow-lg",
+				className,
+			)}
+			layoutId={message.id}
+			style={style}
+			transition={{
+				type: "spring",
+				stiffness: 300,
+				damping: 25,
+			}}
+			data-alert
+		>
+			{message.content} {message.id.split("-")[0]}
+		</motion.div>
+	)
+}
 
-	const prevMessage = useRef(message)
-	const prevIsFollowing = useRef(isFollowing)
+function getInitialCursor() {
+	const event = global?.event as MouseEvent
+	return {x: event?.clientX ?? 0, y: event?.clientY ?? 0}
+}
+
+function Following({
+	children,
+	className,
+}: PropsWithChildren & {className?: string}) {
+	const [cursor] = useState(getInitialCursor)
+	const x = useMotionValue(cursor.x)
+	const y = useMotionValue(cursor.y)
+
+	const shouldFollow = children != null
 
 	useEffect(() => {
-		if (prevIsFollowing.current === false) {
-			prevIsFollowing.current = isFollowing
-			prevMessage.current = message
-			return
+		if (!shouldFollow) return
+
+		const move = (e: MouseEvent) => {
+			x.set(e.clientX + 15)
+			y.set(e.clientY + 15)
 		}
-
-		prevIsFollowing.current = isFollowing
-		prevMessage.current = message
-
-		if (!isFollowing) return
-
-		setShouldZoomzoom(true)
-		setTimeout(() => setShouldZoomzoom(false), 200)
-	}, [message, isFollowing])
-
-	const alertRef = useRef<HTMLDivElement>(null)
-
-	useEffect(() => {
-		if (!isFollowing) return
-
-		function moveTo(e: MouseEvent) {
-			if (!alertRef.current) return
-			const leftOffset = 15
-			const topOffset = 15
-			alertRef.current.style.left = `${e.clientX + leftOffset}px`
-			alertRef.current.style.top = `${e.clientY + topOffset}px`
-		}
-
-		const abortController = new AbortController()
-		const {signal} = abortController
-
-		moveTo(window.event as MouseEvent)
-		document.addEventListener("mousemove", moveTo, {signal})
-
-		return () => abortController.abort()
-	}, [isFollowing])
+		move(global.event as MouseEvent)
+		window.addEventListener("mousemove", move)
+		return () => window.removeEventListener("mousemove", move)
+	}, [shouldFollow, x, y])
 
 	return (
+		<motion.div
+			style={{
+				top: y,
+				left: x,
+			}}
+			className={cn("fixed", className)}
+		>
+			{children}
+		</motion.div>
+	)
+}
+
+function DropZone({className}: {className?: string}) {
+	const [message, setMessage] = useAtom(messageAtom)
+	const {toasts} = useSonner()
+
+	function drop() {
+		if (!message) return
+
+		toast.custom(
+			() => <Alert key={message.id} message={message} className=" w-[300px]" />,
+			{id: message.id},
+		)
+		setTimeout(() => {
+			setMessage(null)
+		}, 0)
+	}
+
+	return (
+		// biome-ignore lint/a11y/useKeyWithMouseEvents: don't think so
 		<div
-			ref={alertRef}
+			role="directory"
+			onMouseOver={drop}
 			className={cn(
-				"absolute bg-black text-white p-2 text-sm rounded-xl flex items-center gap-2 transition origin-top-left shadow-lg z-10",
-				isFollowing
-					? "visible opacity-100 scale-100"
-					: "invisible opacity-0 scale-0",
-				shouldZoomzoom ? "animate-zoomzoom" : "",
+				"opacity-0 transition-opacity p-2",
+				message && toasts.length === 0 && "opacity-100",
+				!message && "pointer-events-none",
+				className,
 			)}
 		>
-			{message}
+			<div
+				className={cn(
+					"border-4 border-dashed border-ui p-4 text-sm rounded-2xl flex flex-row gap-2 items-center justify-center text-tx-3",
+				)}
+			>
+				<BrushCleaningIcon
+					className="animate-sweep transition-all size-6"
+					strokeWidth={2}
+				/>
+				<div className="text-center lex items-center gap-2">
+					Whipe your cursor here
+				</div>
+			</div>
+		</div>
+	)
+}
+
+function CustomToaster({className}: {className?: string}) {
+	return (
+		<div className={className}>
+			<Toaster
+				className={cn(
+					"z-10 font-sans!",
+					"[&_[data-alert]]:transition-colors",
+					"[&_[data-index='0'][data-expanded='false']_[data-alert]]:bg-stone-800",
+					"[&_[data-index='1'][data-expanded='false']_[data-alert]]:bg-stone-700",
+					"[&_[data-index='2'][data-expanded='false']_[data-alert]]:bg-stone-600",
+				)}
+				gap={8}
+				offset={16}
+				duration={3000000}
+			/>
 		</div>
 	)
 }
