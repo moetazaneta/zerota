@@ -8,6 +8,7 @@ import {
 	motion,
 	useMotionValue,
 } from "motion/react"
+import {usePostHog} from "posthog-js/react"
 import {
 	type CSSProperties,
 	type PropsWithChildren,
@@ -25,10 +26,13 @@ type Message = {id: string; content: ReactNode}
 const messageAtom = atom<Message | null>(null)
 
 export function useFollowingAlert() {
+	const posthog = usePostHog()
+
 	const [message, setMessage] = useAtom(messageAtom)
 	const {toasts} = useSonner()
 
 	const show = useEvent((content: ReactNode, customId?: string) => {
+		posthog.capture("following_alert_show")
 		const id = customId ?? crypto.randomUUID()
 		const existingToast = toasts.some(t => t.id === id)
 		if (existingToast) {
@@ -41,6 +45,7 @@ export function useFollowingAlert() {
 	})
 
 	const moveToToast = useEvent((message: Message) => {
+		posthog.capture("following_alert_move_to_toaster")
 		toast.custom(() => <Alert message={message} className="w-[300px]" />, {
 			id: message.id,
 		})

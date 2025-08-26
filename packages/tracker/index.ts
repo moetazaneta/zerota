@@ -1,35 +1,50 @@
-import * as v from "valibot";
-import { createHTTPServer } from "@trpc/server/adapters/standalone";
-import { publicProcedure, router } from "./trpc";
-import { http } from "./http";
-import { api } from "@zerota/db/convex/_generated/api";
-import { getAnilistActivities } from "./anilist";
-import cors from "cors";
+import {createHTTPServer} from "@trpc/server/adapters/standalone"
+import {api} from "@zerota/db/convex/_generated/api"
+import cors from "cors"
+import * as v from "valibot"
+import {getAnilistActivities} from "./anilist"
+import {http} from "./http"
+import {postHog} from "./posthog"
+import {anilistScheduler} from "./queue"
+import {publicProcedure, router} from "./trpc"
 
 const appRouter = router({
-  fetchAnilistActivities: publicProcedure
-    .input(v.object({ id: v.string() }))
-    .mutation(async ({ input }) => {
-      console.log("for user:", input.id);
-      const activities = await getAnilistActivities(input.id);
-      console.log("activities:", activities);
-      const results = await Promise.all(
-        activities.map((activity) =>
-          http.mutation(api.activity.createStatusActivity, activity),
-        ),
-      );
-      console.log("results:", results);
-      return results;
-    }),
-});
+	fetchAnilistActivities: publicProcedure
+		.input(v.object({id: v.string()}))
+		.mutation(async ({input}) => {
+			postHog.capture({
+				event: "anilist_activities_fetched",
+				distinctId: "dev",
+				properties: {
+					userId: input.id,
+				},
+			})
+			console.log("for user:", input.id)
+			anilistScheduler.add(input.id)
+		}),
+})
 
-export type AppRouter = typeof appRouter;
+export type AppRouter = typeof appRouter
 
 const server = createHTTPServer({
-  middleware: cors(),
-  router: appRouter,
-});
+	middleware: cors(),
+	router: appRouter,
+})
 
-export const port = 3001;
+server.listen(3001)
 
-server.listen(port);
+postHog.capture({
+	event: "tracker_started",
+	distinctId: "test-id",
+})
+
+process.on("SIGINT", async () => {
+	console.log("\nShutting down tracker...")
+
+	postHog.shutdown()
+
+	// Wait for any in-progress operations to complete
+	// Close any open connections
+	// Save any pending state
+	process.exit(0)
+})

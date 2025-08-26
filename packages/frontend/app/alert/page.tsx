@@ -16,7 +16,7 @@ function getRandomMilk() {
 	return milks[Math.floor(Math.random() * milks.length)]
 }
 
-export default function DevTools() {
+export default function AlertPage() {
 	const {show, drop, hide} = useFollowingAlert()
 
 	const [cycling, setCycling] = useState(false)
